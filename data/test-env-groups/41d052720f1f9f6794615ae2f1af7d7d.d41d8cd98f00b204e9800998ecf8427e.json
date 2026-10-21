@@ -1,0 +1,1 @@
+{"id":"41d052720f1f9f6794615ae2f1af7d7d.d41d8cd98f00b204e9800998ecf8427e","fullName":"test-me-e2e:cypress/e2e/api.cy.js#01 Workspace GET /api/workspaces → 405 (перехід у браузері — не POST)","name":"GET /api/workspaces → 405 (перехід у браузері — не POST)","status":"passed","testResultsByEnv":{"default":"e90c3bb0853dcd678e0fec475dc8633b"}}
