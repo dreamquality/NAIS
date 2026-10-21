@@ -14,8 +14,12 @@ on:
 permissions:
   contents: read
 
+# One workflow run at a time, regardless of branch: the tests hit a live API
+# with a 30 workspaces/min rate limit per client IP, and GitHub-hosted runners
+# share egress addresses, so parallel runs (e.g. Dependabot PRs + main) would
+# starve each other with 429s. Runs queue instead of cancelling.
 concurrency:
-  group: allure-report-${{ github.ref }}
+  group: test-me-live-api
   cancel-in-progress: false
 
 jobs:

@@ -7,16 +7,27 @@
  */
 import { STORAGE_KEY, CATALOG_URL, RESPONSE_SLA_MS } from './constants';
 
-/** POST /api/workspaces → yields the new token (201 asserted). */
-Cypress.Commands.add('createWorkspace', () =>
-  cy
-    .api({ method: 'POST', url: '/api/workspaces' })
-    .then((res) => {
-      expect(res.status, 'workspace created').to.eq(201);
-      expect(res.body.token, 'token').to.be.a('string').and.have.length.above(16);
-      return res.body.token;
-    }),
-);
+/**
+ * POST /api/workspaces → yields the new token (201 asserted).
+ *
+ * The API soft-limits workspace creation to 30/min per client IP and answers
+ * 429 with a Retry-After header (spec.txt). CI shards and parallel workflow
+ * runs share runner egress IPs, so a 429 here is an environment condition,
+ * not a product defect: wait for Retry-After and try again (up to 3 times).
+ */
+const createWorkspace = (attempt = 1) =>
+  cy.api({ method: 'POST', url: '/api/workspaces', failOnStatusCode: false }).then((res) => {
+    if (res.status === 429 && attempt < 4) {
+      const retryAfter = Math.min(Number(res.headers['retry-after']) || 10, 60);
+      cy.log(`429 on workspace creation — waiting ${retryAfter}s (attempt ${attempt}/3)`);
+      return cy.wait(retryAfter * 1000, { log: false }).then(() => createWorkspace(attempt + 1));
+    }
+    expect(res.status, 'workspace created').to.eq(201);
+    expect(res.body.token, 'token').to.be.a('string').and.have.length.above(16);
+    return res.body.token;
+  });
+
+Cypress.Commands.add('createWorkspace', () => createWorkspace());
 
 /**
  * cy.api() with the workspace header and failOnStatusCode disabled, so
