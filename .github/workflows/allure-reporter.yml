@@ -55,7 +55,7 @@ jobs:
           SPLIT_INDEX: ${{ strategy.job-index }}
 
       - name: Upload Allure results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: allure-results-${{ matrix.shard }}
@@ -64,7 +64,7 @@ jobs:
           retention-days: 14
 
       - name: Upload failure screenshots
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: cypress-screenshots-${{ matrix.shard }}
@@ -104,7 +104,7 @@ jobs:
           keep_reports: 20
 
       - name: Upload Allure report artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: allure-report
           path: allure-history
