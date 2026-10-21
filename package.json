@@ -1,0 +1,47 @@
+{
+  "name": "test-me-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cypress e2e tests for https://test-me.vzl.one",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:smoke": "cypress run --expose grepTags=@smoke",
+    "cy:api": "cypress run --expose grepTags=@api",
+    "cy:ui": "cypress run --expose grepTags=@ui+-@visual",
+    "cy:mobile": "cypress run --expose grepTags=@mobile+-@visual",
+    "cy:desktop": "cypress run --expose grepTags=@desktop+-@visual",
+    "cy:regression": "cypress run --expose grepTags=-@visual",
+    "cy:known-bugs": "cypress run --expose grepTags=@known-bug",
+    "cy:last-failed": "node scripts/run-last-failed.js --browser electron",
+    "cy:open:pick": "cypress open --expose disableInitialAutoRun=true",
+    "cy:visual": "cypress run --expose grepTags=@visual",
+    "cy:visual:update": "cypress run --expose grepTags=@visual,updateSnapshots=true",
+    "cy:e2e:run": "npm run clear && npm run cy:regression; npm run report",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report",
+    "report": "npm run allure:generate && npm run allure:open",
+    "clear": "rm -rf allure-results allure-report reports"
+  },
+  "devDependencies": {
+    "@bahmutov/cy-grep": "^3.0.5",
+    "@faker-js/faker": "^10.6.0",
+    "@simonsmith/cypress-image-snapshot": "^11.0.0",
+    "@testing-library/cypress": "^10.1.3",
+    "ajv": "^8.20.0",
+    "allure": "^3.21.0",
+    "allure-cypress": "^3.14.0",
+    "cypress": "^16.2.0",
+    "cypress-on-fix": "^1.1.0",
+    "cypress-plugin-api": "^2.12.3",
+    "cypress-plugin-grep-boxes": "^4.1.0",
+    "cypress-plugin-last-failed": "^4.1.0",
+    "cypress-split": "^1.25.0",
+    "cypress-terminal-report": "^7.4.0",
+    "cypress-wait-until": "^3.0.2",
+    "docx": "^9.13.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

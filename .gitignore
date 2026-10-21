@@ -1,0 +1,10 @@
+node_modules/
+reports/
+allure-results/
+allure-report/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+cypress/snapshots/**/__diff_output__/
+test-results/
+.DS_Store
