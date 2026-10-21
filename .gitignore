@@ -8,3 +8,4 @@ cypress/downloads/
 cypress/snapshots/**/__diff_output__/
 test-results/
 .DS_Store
+allure-history/

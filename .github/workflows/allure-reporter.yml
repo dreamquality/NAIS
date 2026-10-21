@@ -79,10 +79,19 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # push the report to the gh-pages branch
-      pages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install Allure CLI (project devDependency, no Cypress binary)
+        run: npm ci --ignore-scripts
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Download Allure results from every shard
         uses: actions/download-artifact@v7
@@ -91,7 +100,7 @@ jobs:
           path: allure-results
           merge-multiple: true
 
-      - name: Get Allure history
+      - name: Restore run history from gh-pages
         uses: actions/checkout@v7
         continue-on-error: true
         with:
@@ -99,18 +108,22 @@ jobs:
           path: gh-pages
 
       - name: Build Allure report with history
-        uses: simple-elf/allure-report-action@v1.15
-        with:
-          allure_results: allure-results
-          allure_history: allure-history
-          gh_pages: gh-pages
-          keep_reports: 20
+        # historyPath comes from allurerc.mjs; the previous history.jsonl is
+        # published next to the report so the next run can pick it up.
+        run: |
+          mkdir -p allure-history
+          cp gh-pages/history/history.jsonl allure-history/history.jsonl 2>/dev/null || echo "no previous history"
+          npx allure generate allure-results --clean --history-limit 20 \
+            --history-base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          mkdir -p allure-report/history
+          cp allure-history/history.jsonl allure-report/history/history.jsonl
+          touch allure-report/.nojekyll
 
       - name: Upload Allure report artifact
         uses: actions/upload-artifact@v7
         with:
           name: allure-report
-          path: allure-history
+          path: allure-report
           retention-days: 14
 
       - name: Deploy report to GitHub Pages
@@ -119,4 +132,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: allure-history
+          publish_dir: allure-report

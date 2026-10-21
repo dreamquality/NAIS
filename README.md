@@ -211,7 +211,7 @@ header переноситься, сітка каталогу стає 2-коло
 | Пакет | Навіщо | Де |
 |---|---|---|
 | `cypress-plugin-api` | `cy.api()` з візуалізацією запиту/відповіді в ранері | усі API-тести (`cy.apiAs` — обгортка з токеном, SLA і content-type) |
-| `allure-cypress` + `allure` (CLI) | Allure 3 звіт: epic/feature, теги, описи відомих багів | `cypress.config.js`, `support/allure.js` |
+| `allure-cypress` + `allure` (CLI) | Allure 3 звіт: epic/feature, теги, описи відомих багів, історія прогонів (`historyPath` в `allurerc.mjs`) | `cypress.config.js`, `support/allure.js`, `allurerc.mjs` |
 | `@bahmutov/cy-grep` | теги `@smoke @api @ui @mobile @desktop @known-bug @visual @catalog @compare @checkout` і npm-скрипти; база для grep-boxes і last-failed | усі `describe`/`it` |
 | `cypress-plugin-grep-boxes` | чекбокси біля тестів у ранері: обрати кілька тестів або тег і запустити лише їх (open mode) | `support/e2e.js`; `npm run cy:open:pick` відкриває без автозапуску |
 | `cypress-plugin-last-failed` | перезапуск лише тестів, що впали в попередньому прогоні: `npm run cy:last-failed` (run mode) і перемикач ↻ у ранері (open mode); результати в `test-results/last-run.json` | `cypress.config.js` (`collectFailingTests`), `support/e2e.js`; у run mode — через `scripts/run-last-failed.js` + `cypress.last-failed.config.js`, бо штатний CLI плагіна передає фільтр через `CYPRESS_grep` (env), який Cypress 16 не віддає в браузер |
@@ -238,7 +238,7 @@ Baseline-знімки залежать від браузера та ОС, том
 `.github/workflows/allure-reporter.yml` — за `push`/`pull_request` у `main`, щодня о 06:00 UTC і вручну:
 
 1. **cypress** — матриця з 3 шардів (`cypress-split`), Chrome, `grepTags=-@visual`; крок `continue-on-error`, щоб відомі баги не блокували звіт. Артефакти: `allure-results-<shard>`, скріншоти падінь.
-2. **report** — завантажує результати всіх шардів (`merge-multiple`), бере історію з гілки `gh-pages`, збирає звіт `simple-elf/allure-report-action` (зберігає 20 прогонів) і публікує `peaceiris/actions-gh-pages` на `gh-pages` (на PR — лише артефакт).
+2. **report** — завантажує результати всіх шардів (`merge-multiple`), відновлює історію прогонів із `gh-pages/history/history.jsonl`, збирає звіт тим самим `allure` CLI, що й локально (`allurerc.mjs`, 20 останніх прогонів), кладе `history.jsonl` поруч зі звітом і публікує `peaceiris/actions-gh-pages` на `gh-pages` (на PR — лише артефакт). Docker-дій у pipeline немає — збірка не залежить від зовнішніх registry.
 
 Щоб звіт відкривався за URL, у налаштуваннях репозиторію ввімкніть Pages → Source: branch `gh-pages`.
 `dependabot.yml` оновлює npm (група `cypress*`/`allure*`) і actions щотижня.
