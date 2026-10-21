@@ -99,12 +99,13 @@ jobs:
           path: gh-pages
 
       - name: Build Allure report with history
-        uses: simple-elf/allure-report-action@385367cde61ac68c2568a117f7579f7f148dc459 # v1.15
-        with:
-          allure_results: allure-results
-          allure_history: allure-history
-          gh_pages: gh-pages
-          keep_reports: 20
+        run: |
+          mkdir -p allure-results
+          if [ -d gh-pages/history ]; then
+            mkdir -p allure-results/history
+            cp -R gh-pages/history/. allure-results/history/
+          fi
+          npx --yes allure-commandline@2.44.0 generate allure-results --clean -o allure-history
 
       - name: Upload Allure report artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
