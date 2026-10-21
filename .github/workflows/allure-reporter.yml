@@ -137,3 +137,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-report
+          # Allure 3 result ids are per run; keeping earlier data/ files on the
+          # branch lets links opened before a redeploy (and History links) keep
+          # resolving instead of 404-ing until the browser cache expires.
+          keep_files: true
