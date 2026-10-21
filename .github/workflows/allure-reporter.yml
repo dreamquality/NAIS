@@ -10,9 +10,9 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+# Least privilege by default; only the publishing job gets write access.
 permissions:
-  contents: write
-  pages: write
+  contents: read
 
 concurrency:
   group: allure-report-${{ github.ref }}
@@ -28,9 +28,9 @@ jobs:
         shard: [1, 2, 3]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -39,7 +39,7 @@ jobs:
         run: npm ci
 
       - name: Cypress install
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@f790eee7a50d9505912f50c2095510be7de06aa7 # v6.10.9
         with:
           browser: chrome
           runTests: false
@@ -55,7 +55,7 @@ jobs:
           SPLIT_INDEX: ${{ strategy.job-index }}
 
       - name: Upload Allure results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: allure-results-${{ matrix.shard }}
@@ -64,7 +64,7 @@ jobs:
           retention-days: 14
 
       - name: Upload failure screenshots
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: cypress-screenshots-${{ matrix.shard }}
@@ -77,26 +77,29 @@ jobs:
     needs: cypress
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the report to the gh-pages branch
+      pages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Download Allure results from every shard
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: allure-results-*
           path: allure-results
           merge-multiple: true
 
       - name: Get Allure history
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         continue-on-error: true
         with:
           ref: gh-pages
           path: gh-pages
 
       - name: Build Allure report with history
-        uses: simple-elf/allure-report-action@master
+        uses: simple-elf/allure-report-action@385367cde61ac68c2568a117f7579f7f148dc459 # v1.15
         with:
           allure_results: allure-results
           allure_history: allure-history
@@ -104,7 +107,7 @@ jobs:
           keep_reports: 20
 
       - name: Upload Allure report artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: allure-report
           path: allure-history
@@ -112,7 +115,7 @@ jobs:
 
       - name: Deploy report to GitHub Pages
         if: github.event_name != 'pull_request'
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
