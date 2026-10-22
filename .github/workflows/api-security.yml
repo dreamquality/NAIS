@@ -1,0 +1,64 @@
+name: API security tests (pytest, OWASP API Top 10)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api-security/**'
+      - '.github/workflows/api-security.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'api-security/**'
+      - '.github/workflows/api-security.yml'
+  schedule:
+    # weekly, Monday 07:00 UTC — after the daily Cypress run has finished
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Same group as the Cypress workflow: both hit the live API whose workspace
+# rate limit is per client IP, and runners share egress addresses.
+concurrency:
+  group: test-me-live-api
+  cancel-in-progress: false
+
+jobs:
+  pytest:
+    name: pytest (OWASP API Security Top 10)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: api-security
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: api-security/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run security tests
+        # Known deviations are xfail(strict); any other failure (or an
+        # unexpected pass) fails the job on purpose — there is no report to
+        # publish, the job status is the signal.
+        run: pytest --junitxml=reports/junit.xml -ra
+        env:
+          API_BASE_URL: https://test-me.vzl.one
+
+      - name: Upload JUnit results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: api-security-junit
+          path: api-security/reports/junit.xml
+          if-no-files-found: warn
+          retention-days: 14

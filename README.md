@@ -183,9 +183,11 @@ cypress/
     allure.js            KNOWN_BUG(id, summary), labels({epic, feature, story})
     constants.js         STORAGE_KEY, COUPON, CATALOG_URL, RESPONSE_SLA_MS, money(), priceOf()
   snapshots/             baseline-знімки для @visual
+api-security/              негативні API-тести безпеки на pytest за OWASP API Security Top 10 (2023), один файл на категорію; див. api-security/README.md
 docs/
   Test-plan-and-cases.docx   план тестування (обсяг, підхід, пріоритети, ризики, критерії, відомі дефекти) і 18 тест-кейсів
 .github/workflows/allure-reporter.yml   CI: 3 шарди → Allure з історією → GitHub Pages
+.github/workflows/api-security.yml      CI: pytest-набір безпеки, лише JUnit-артефакт, без Pages
 ```
 
 ## План тестування та тест-кейси
@@ -241,6 +243,24 @@ Baseline-знімки залежать від браузера та ОС, том
 2. **report** — завантажує результати всіх шардів (`merge-multiple`), відновлює історію прогонів із `gh-pages/history/history.jsonl`, збирає звіт тим самим `allure` CLI, що й локально (`allurerc.mjs`, 20 останніх прогонів), кладе `history.jsonl` поруч зі звітом і публікує `peaceiris/actions-gh-pages` на `gh-pages` (на PR — лише артефакт). Docker-дій у pipeline немає — збірка не залежить від зовнішніх registry.
 
 Щоб звіт відкривався за URL, у налаштуваннях репозиторію ввімкніть Pages → Source: branch `gh-pages`.
+
+`.github/workflows/api-security.yml` — окремий прогін pytest-набору безпеки: за змінами в `api-security/`,
+щопонеділка о 07:00 UTC і вручну. Та сама `concurrency`-група, що й у Cypress (спільний rate limit живого API).
+Публікації на Pages немає — сигналом є статус джоби, результати лежать у артефакті `api-security-junit`.
+
+## API security (pytest · OWASP API Security Top 10)
+
+`api-security/` — 270 негативних перевірок API на Python/pytest, по файлу на категорію
+OWASP API Security Top 10 2023 (BOLA, автентифікація, mass assignment, ліміти ресурсів,
+function-level, бізнес-потоки, SSRF, misconfiguration, inventory, injection). Тести
+стверджують очікувану поведінку захищеного сервера; знайдені відхилення (немає HSTS,
+версія застосунку в `/api/health`, редірект `/api/products/` на upstream-хост по http,
+BUG-5) позначені `xfail(strict=True)`. Запуск і таблиця покриття — в `api-security/README.md`.
+
+```bash
+cd api-security && python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt && pytest
+```
 `dependabot.yml` оновлює npm (група `cypress*`/`allure*`) і actions щотижня.
 
 ## Покриття API

@@ -9,3 +9,7 @@ cypress/snapshots/**/__diff_output__/
 test-results/
 .DS_Store
 allure-history/
+.venv*/
+__pycache__/
+.pytest_cache/
+api-security/reports/
