@@ -1,1 +1,1 @@
-{"id":"76a6b18b507894912b72c6e5e0cc61ce.d41d8cd98f00b204e9800998ecf8427e","fullName":"test-me-e2e:cypress/e2e/api.cy.js#05 Quote (basket calculation) без токена → 401","name":"без токена → 401","status":"passed","testResultsByEnv":{"default":"b0fcc33b43bdbbc9124c2243d69401a6"}}
+{"id":"76a6b18b507894912b72c6e5e0cc61ce.d41d8cd98f00b204e9800998ecf8427e","fullName":"test-me-e2e:cypress/e2e/api.cy.js#05 Quote (basket calculation) без токена → 401","name":"без токена → 401","status":"passed","testResultsByEnv":{"default":"405f4e702013b48de5015c8ba689bf60"}}
