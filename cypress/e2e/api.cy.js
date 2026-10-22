@@ -426,6 +426,17 @@ describe('04 Reviews', { tags: ['@api', '@regression'] }, () => {
     );
   });
 
+  it('текст рівно 500 символів у пробілах приймається (верхня межа рахується після trim)', { tags: '@known-bug', retries: 0 }, () => {
+    // KNOWN BUG: spec says the 500-char limit applies after trim; the server measures the raw
+    // string, so "   " + 500 chars + "   " → 422 although the trimmed text is exactly at the limit.
+    // (The lower bound IS checked after trim — see «10 символів після trim» above.)
+    KNOWN_BUG(6, 'Upper length bound is checked before trim: review text of 500 chars padded with spaces → 422 «[body, text]» (500 chars without padding → 201).');
+    review(token, 'p05', { rating: 4, text: `   ${'в'.repeat(500)}   ` }).then((res) => {
+      expect(res.status).to.eq(201);
+      expect(res.body.review.text).to.have.length(500);
+    });
+  });
+
   it('відгук на невідомий товар → 404', () => {
     review(token, 'p999', { rating: 5, text: 'Достатньо довгий текст відгуку' }).then((res) => expectError(res, 404, { detail: NOT_FOUND }));
   });
@@ -694,6 +705,25 @@ describe('06 Checkout (TM-CHECKOUT-001)', { tags: ['@api', '@regression'] }, () 
     // KNOWN BUG: spec says name is 2–80 chars after trim; server accepts "  A  " and creates an order.
     KNOWN_BUG(4, 'Name is not trimmed before the length check: "  A  " → 201 (address IS trimmed).');
     placeOrder(token, checkout({ name: '  A  ' })).then((res) => expectError(res, 422, { detail: BAD_FIELDS, field: ['body', 'name'] }));
+  });
+
+  it('ім\'я рівно 80 символів у пробілах приймається (верхня межа рахується після trim)', { tags: '@known-bug', retries: 0 }, () => {
+    // KNOWN BUG: the 80-char limit is applied to the raw value, so "  " + 80 chars + "  " → 422
+    // «[body, name]»; the same 80 chars without padding → 201 (see «межі контактів» above).
+    KNOWN_BUG(6, 'Upper length bound is checked before trim: name of 80 chars padded with spaces → 422 «[body, name]».');
+    placeOrder(token, checkout({ items: [{ product_id: 'p08', quantity: 1 }], coupon: '', name: `  ${'О'.repeat(80)}  ` })).then((res) => {
+      expect(res.status).to.eq(201);
+      expect(res.body.status).to.eq('confirmed');
+    });
+  });
+
+  it('адреса рівно 200 символів у пробілах приймається (верхня межа рахується після trim)', { tags: '@known-bug', retries: 0 }, () => {
+    // KNOWN BUG: same defect for the address — 200 chars padded with spaces → 422 «[body, address]».
+    KNOWN_BUG(6, 'Upper length bound is checked before trim: address of 200 chars padded with spaces → 422 «[body, address]».');
+    placeOrder(token, checkout({ items: [{ product_id: 'p08', quantity: 1 }], coupon: '', address: `  ${'К'.repeat(200)}  ` })).then((res) => {
+      expect(res.status).to.eq(201);
+      expect(res.body.status).to.eq('confirmed');
+    });
   });
 
   it('422 перелічує всі невалідні поля; валідація полів важливіша за stock', () => {

@@ -23,6 +23,7 @@ class CartPage {
   get placeOrderButton() { return cy.get('[data-testid=place-order]'); }
 
   quantity(id) { return cy.get(`[data-testid=quantity-${id}]`); }
+  increaseQuantityButton(id) { return cy.get(`[data-quantity=${id}][data-delta="1"]`); }
 
   /** Register the intercepts this page relies on; call before visiting. */
   interceptQuote() {
@@ -42,6 +43,24 @@ class CartPage {
   applyCoupon(code) {
     this.couponInput.type(code);
     this.applyCouponButton.click();
+    return this.waitForQuote();
+  }
+
+  /** Clear the coupon field only (no «Застосувати» click) — what a user does to "remove" a code. */
+  clearCoupon() {
+    this.couponInput.clear();
+    return this;
+  }
+
+  /** Change the delivery method; the app recalculates totals through POST /api/quote. */
+  selectDelivery(value) {
+    this.deliverySelect.select(value);
+    return this.waitForQuote();
+  }
+
+  /** «+» on a cart line; the app re-renders the bag and requests a new quote. */
+  increaseQuantity(id) {
+    this.increaseQuantityButton(id).click();
     return this.waitForQuote();
   }
 
@@ -101,6 +120,11 @@ class CartPage {
 
   expectDelivery(value) {
     this.deliverySelect.should('have.value', value);
+    return this;
+  }
+
+  expectCoupon(code) {
+    this.couponInput.should('have.value', code);
     return this;
   }
 
