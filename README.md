@@ -246,7 +246,8 @@ Baseline-знімки залежать від браузера та ОС, том
 
 `.github/workflows/api-security.yml` — окремий прогін pytest-набору безпеки: за змінами в `api-security/`,
 щопонеділка о 07:00 UTC і вручну. Та сама `concurrency`-група, що й у Cypress (спільний rate limit живого API).
-Публікації на Pages немає — сигналом є статус джоби, результати лежать у артефакті `api-security-junit`.
+Публікації на Pages немає: звіт рендериться як Job Summary на сторінці прогону (`api-security/scripts/junit_summary.py`
+з `junit.xml`), падіння анотуються в diff, JUnit-файл лежить у артефакті `api-security-junit`.
 
 ## API security (pytest · OWASP API Security Top 10)
 

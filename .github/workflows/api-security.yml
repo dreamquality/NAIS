@@ -48,11 +48,17 @@ jobs:
 
       - name: Run security tests
         # Known deviations are xfail(strict); any other failure (or an
-        # unexpected pass) fails the job on purpose — there is no report to
-        # publish, the job status is the signal.
+        # unexpected pass) fails the job on purpose. Failures are also
+        # annotated inline (pytest-github-actions-annotate-failures).
         run: pytest --junitxml=reports/junit.xml -ra
         env:
           API_BASE_URL: https://test-me.vzl.one
+
+      - name: Job summary (Markdown report from junit.xml)
+        # Rendered on the workflow-run page under "Summary" — no Pages, no
+        # external service. Runs even when tests failed.
+        if: always()
+        run: python scripts/junit_summary.py reports/junit.xml >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload JUnit results
         uses: actions/upload-artifact@v7

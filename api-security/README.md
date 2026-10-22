@@ -44,5 +44,18 @@ API_BASE_URL=https://test-me.vzl.one pytest --junitxml=reports/junit.xml
 ```
 
 Тести створюють власні workspace (ліміт 30/хв на IP враховано: `create_workspace()`
-чекає `Retry-After`). У CI набір ганяється окремим workflow
-`.github/workflows/api-security.yml` і публікує лише JUnit-артефакт — без GitHub Pages.
+чекає `Retry-After`).
+
+## Звіт у CI
+
+Набір ганяється окремим workflow `.github/workflows/api-security.yml`. Звіт — це
+**Job Summary** на сторінці прогону в Actions (без GitHub Pages і зовнішніх сервісів):
+`scripts/junit_summary.py` перетворює `reports/junit.xml` на Markdown — вердикт, таблиця
+passed/failed/known по категоріях OWASP, список падінь і згорнутий список відомих
+відхилень. Падіння додатково з'являються як анотації у diff
+(`pytest-github-actions-annotate-failures`). JUnit-файл зберігається як артефакт
+`api-security-junit`. Локально той самий звіт:
+
+```bash
+pytest --junitxml=reports/junit.xml; python scripts/junit_summary.py reports/junit.xml
+```
