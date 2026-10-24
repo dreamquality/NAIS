@@ -1,1 +1,1 @@
-{"id":"de1208ec13d7b531f8f4b9ee3e312105.d41d8cd98f00b204e9800998ecf8427e","fullName":"test-me-e2e:cypress/e2e/api.cy.js#02 Catalog min_price > max_price → 422","name":"min_price > max_price → 422","status":"passed","testResultsByEnv":{"default":"6159198577fe93c118abc5a217077a4c"}}
+{"id":"de1208ec13d7b531f8f4b9ee3e312105.d41d8cd98f00b204e9800998ecf8427e","fullName":"test-me-e2e:cypress/e2e/api.cy.js#02 Catalog min_price > max_price → 422","name":"min_price > max_price → 422","status":"passed","testResultsByEnv":{"default":"6ec3dcf3c740876786d23d7d6224bb8f"}}
