@@ -39,7 +39,7 @@
     "cypress-split": "^1.25.0",
     "cypress-terminal-report": "^7.4.0",
     "cypress-wait-until": "^3.0.2",
-    "docx": "^9.13.0"
+    "docx": "^9.14.0"
   },
   "engines": {
     "node": ">=20"
