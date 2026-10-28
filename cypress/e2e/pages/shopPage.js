@@ -142,6 +142,16 @@ class ShopPage {
     cy.expectToast(text);
     return this;
   }
+
+  productTitle(id) {
+    return this.card(id).find(`.product-title[data-detail=${id}]`)
+  }
+
+  openProduct(id) {
+    this.productTitle(id).click()
+    return this
+  }
+ 
 }
 
 export const shopPage = new ShopPage();
